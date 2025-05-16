@@ -1,0 +1,123 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Check for required commands
+for cmd in openssl uuidgen; do
+  if ! command -v "$cmd" >/dev/null; then
+    echo >&2 "Error: $cmd is not installed. Please install it and retry."
+    exit 1
+  fi
+done
+
+# Prompt user for required values
+read -rp "Enter SERVER_NAME (domain): " SERVER_NAME
+read -rp "Enter SERVER_IP: " SERVER_IP
+
+CERT_DIR=/etc/sing-box/tls
+DOMAINS="$SERVER_NAME"
+
+# Generate random credentials and identifiers
+SS_CHACHA20_PORT=8443
+SS_CHACHA20_PASSWORD=$(openssl rand -hex 16)
+SS_AESGCM_PORT=8444
+SS_AESGCM_PASSWORD=$(openssl rand -hex 16)
+
+VMESS_PORT=10000
+VMESS_UUID=$(uuidgen)
+VMESS_WSPATH=/vmess
+
+TROJAN_PORT=20000
+TROJAN_NAME=trojan_user
+TROJAN_PASSWORD=$(openssl rand -hex 16)
+
+NAIVE_PORT=30000
+NAIVE_USER=naive_user
+NAIVE_PASSWORD=$(openssl rand -hex 16)
+
+SHADOWTLS_PORT=40000
+SHADOWTLS_PASSWORD=$(openssl rand -hex 16)
+SHADOWTLS_SERVER="sni.$SERVER_NAME"
+SHADOWTLS_SERVER_PORT=443
+
+TUIC_PORT=42000
+TUIC_UUID=$(uuidgen)
+TUIC_PASSWORD=$(openssl rand -hex 16)
+TUIC_CONGESTION=bbr
+
+HYSTERIA2_PORT=43000
+HYSTERIA2_PASSWORD=$(openssl rand -hex 16)
+HYSTERIA2_UP_MBPS=100
+HYSTERIA2_DOWN_MBPS=100
+
+ANYTLS_PORT=45000
+
+# Write to .env file
+ENV_FILE=".env"
+cat >"$ENV_FILE" <<EOF
+# .env
+# Server identity (for your ACME / certificate workflows)
+SERVER_NAME=$SERVER_NAME
+DOMAINS=$DOMAINS
+SERVER_IP=$SERVER_IP
+
+# Where your TLS certificates live
+CERT_DIR=$CERT_DIR
+
+# Shadowsocks: chacha20-ietf-poly1305
+SS_CHACHA20_PORT=$SS_CHACHA20_PORT
+SS_CHACHA20_PASSWORD=$SS_CHACHA20_PASSWORD
+
+# Shadowsocks: 2022-blake3-aes-128-gcm
+SS_AESGCM_PORT=$SS_AESGCM_PORT
+SS_AESGCM_PASSWORD=$SS_AESGCM_PASSWORD
+
+# Vmess over WS
+VMESS_PORT=$VMESS_PORT
+VMESS_UUID=$VMESS_UUID
+VMESS_WSPATH=$VMESS_WSPATH
+VMESS_CERT="\${CERT_DIR}/fullchain.pem"
+VMESS_KEY="\${CERT_DIR}/privkey.pem"
+
+# Trojan
+TROJAN_PORT=$TROJAN_PORT
+TROJAN_NAME=$TROJAN_NAME
+TROJAN_PASSWORD=$TROJAN_PASSWORD
+TROJAN_CERT="\${CERT_DIR}/fullchain.pem"
+TROJAN_KEY="\${CERT_DIR}/privkey.pem"
+
+# Naive
+NAIVE_PORT=$NAIVE_PORT
+NAIVE_USER=$NAIVE_USER
+NAIVE_PASSWORD=$NAIVE_PASSWORD
+NAIVE_CERT="\${CERT_DIR}/fullchain.pem"
+NAIVE_KEY="\${CERT_DIR}/privkey.pem"
+
+# ShadowTLS
+SHADOWTLS_PORT=$SHADOWTLS_PORT
+SHADOWTLS_PASSWORD=$SHADOWTLS_PASSWORD
+SHADOWTLS_SERVER=$SHADOWTLS_SERVER
+SHADOWTLS_SERVER_PORT=$SHADOWTLS_SERVER_PORT
+
+# TUIC
+TUIC_PORT=$TUIC_PORT
+TUIC_UUID=$TUIC_UUID
+TUIC_PASSWORD=$TUIC_PASSWORD
+TUIC_CERT="\${CERT_DIR}/fullchain.pem"
+TUIC_CONGESTION="$TUIC_CONGESTION"
+TUIC_KEY="\${CERT_DIR}/privkey.pem"
+
+# Hysteria2
+HYSTERIA2_PORT=$HYSTERIA2_PORT
+HYSTERIA2_PASSWORD=$HYSTERIA2_PASSWORD
+HYSTERIA2_CERT="\${CERT_DIR}/fullchain.pem"
+HYSTERIA2_KEY="\${CERT_DIR}/privkey.pem"
+HYSTERIA2_UP_MBPS=$HYSTERIA2_UP_MBPS
+HYSTERIA2_DOWN_MBPS=$HYSTERIA2_DOWN_MBPS
+
+# Anytls (no auth)
+ANYTLS_PORT=$ANYTLS_PORT
+ANYTLS_CERT="\${CERT_DIR}/fullchain.pem"
+ANYTLS_KEY="\${CERT_DIR}/privkey.pem"
+EOF
+
+echo "Generated $ENV_FILE successfully."
