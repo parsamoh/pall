@@ -119,7 +119,8 @@ function makeSubscriptionLinks() {
 
   pushIf(links, ANYTLS_PORT && ANYTLS_PASSWORD && SERVER_NAME, () => {
     const params = new URLSearchParams({
-      sni: SERVER_NAME
+      sni: SERVER_NAME,
+      security: "tls"
     }).toString();
     return `anytls://${ANYTLS_PASSWORD}@${SERVER_IP}:${ANYTLS_PORT}?${params}#${encodeURIComponent("anytls")}`;
   });
