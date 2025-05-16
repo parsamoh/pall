@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Check for required commands
-for cmd in openssl uuidgen; do
+for cmd in openssl uuidgen sing-box; do
   if ! command -v "$cmd" >/dev/null; then
     echo >&2 "Error: $cmd is not installed. Please install it and retry."
     exit 1
@@ -20,7 +20,7 @@ DOMAINS="$SERVER_NAME"
 SS_CHACHA20_PORT=8443
 SS_CHACHA20_PASSWORD=$(openssl rand -hex 16)
 SS_AESGCM_PORT=8444
-SS_AESGCM_PASSWORD=$(openssl rand -hex 16)
+SS_AESGCM_PASSWORD=$(sing-box generate rand --base64 16)
 
 VMESS_PORT=10000
 VMESS_UUID=$(uuidgen)
@@ -36,7 +36,7 @@ NAIVE_PASSWORD=$(openssl rand -hex 16)
 
 SHADOWTLS_PORT=40000
 SHADOWTLS_PASSWORD=$(openssl rand -hex 16)
-SHADOWTLS_SERVER="sni.$SERVER_NAME"
+SHADOWTLS_SERVER="captive.apple.com"
 SHADOWTLS_SERVER_PORT=443
 
 TUIC_PORT=42000

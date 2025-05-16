@@ -31,7 +31,6 @@ const {
   HYSTERIA2_UP_MBPS,
   HYSTERIA2_DOWN_MBPS,
   ANYTLS_PORT,
-  ANYTLS_NAME,
   ANYTLS_PASSWORD,
 } = process.env;
 
@@ -101,28 +100,28 @@ function makeSubscriptionLinks() {
     // TUIC v5 is commonly used, include relevant parameters
     const params = new URLSearchParams({
       version: "5", // Or the version your server supports
-      tuic_congestion_control: TUIC_CONGESTION,
-      tuic_udp_relay_mode: "native",
-      tls_serverName: SERVER_NAME
+      congestion_control: TUIC_CONGESTION,
+      udp_relay_mode: "native",
+      sni: SERVER_NAME
     }).toString();
-    return `tuic://${TUIC_UUID}:${TUIC_PASSWORD}@${SERVER_NAME}:${TUIC_PORT}?${params}#${encodeURIComponent("tuic")}`;
+    return `tuic://${TUIC_UUID}:${TUIC_PASSWORD}@${SERVER_IP}:${TUIC_PORT}?${params}#${encodeURIComponent("tuic")}`;
   });
 
   // Hysteria2
   pushIf(links, HYSTERIA2_PORT && HYSTERIA2_PASSWORD && SERVER_NAME, () => {
     const params = new URLSearchParams({
-      upmbps: HYSTERIA2_UP_MBPS || "100",
-      downmbps: HYSTERIA2_DOWN_MBPS || "100",
+      sni: SERVER_NAME
       // Add other Hysteria2 params if needed, e.g., obfs=none
     }).toString();
-    return `hysteria2://${HYSTERIA2_PASSWORD}@${SERVER_NAME}:${HYSTERIA2_PORT}?${params}#${encodeURIComponent("hysteria2")}`;
+    return `hysteria2://${HYSTERIA2_PASSWORD}@${SERVER_IP}:${HYSTERIA2_PORT}?${params}#${encodeURIComponent("hysteria2")}`;
   });
 
 
-  pushIf(links, ANYTLS_PORT && ANYTLS_NAME && SERVER_NAME, () => {
+  pushIf(links, ANYTLS_PORT && ANYTLS_PASSWORD && SERVER_NAME, () => {
     const params = new URLSearchParams({
+      sni: SERVER_NAME
     }).toString();
-    return `anytls://${ANYTLS_NAME}@${SERVER_NAME}:${ANYTLS_PORT}?${params}#${encodeURIComponent("anytls")}`;
+    return `anytls://${ANYTLS_PASSWORD}@${SERVER_IP}:${ANYTLS_PORT}?${params}#${encodeURIComponent("anytls")}`;
   });
 
   // Note: ShadowTLS are not standard subscription link types
