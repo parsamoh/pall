@@ -25,6 +25,7 @@ const {
   TUIC_PORT,
   TUIC_UUID,
   TUIC_PASSWORD,
+  TUIC_CONGESTION,
   HYSTERIA2_PORT,
   HYSTERIA2_PASSWORD,
   HYSTERIA2_UP_MBPS,
@@ -98,10 +99,9 @@ function makeSubscriptionLinks() {
     // TUIC v5 is commonly used, include relevant parameters
     const params = new URLSearchParams({
       version: "5", // Or the version your server supports
-      congestion_controller: "bbr",
-      zero_rtt: "true",
-      disable_udp_relay: "false",
-      // password is part of the path for TUIC v5
+      tuic_congestion_control: TUIC_CONGESTION,
+      tuic_udp_relay_mode: "native",
+      tls_serverName: SERVER_NAME
     }).toString();
     return `tuic://${TUIC_UUID}:${TUIC_PASSWORD}@${SERVER_NAME}:${TUIC_PORT}?${params}#${encodeURIComponent("tuic")}`;
   });
@@ -155,7 +155,7 @@ app.get("/subscribe", (_req, res) => {
   res.send(base64Subscription);
 });
 
- app.listen(8080, () => {
+app.listen(8080, () => {
   console.log("✅ HTTPS server running on port 443");
   console.log(`Subscription URL: https://${SERVER_NAME}/subscribe`);
 });

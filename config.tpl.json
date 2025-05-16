@@ -110,7 +110,7 @@
           "password": "$TUIC_PASSWORD"
         }
       ],
-      "congestion_control": "bbr",
+      "congestion_control": "$TUIC_CONGESTION",
       "tls": {
         "enabled": true,
         "certificate_path": "$TUIC_CERT",
