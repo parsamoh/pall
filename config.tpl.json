@@ -1,0 +1,173 @@
+{
+  "log": {
+    "disabled": false,
+    "level": "info",
+    "output": "/var/log/sing-box/sing-box.log",
+    "timestamp": true
+  },
+  "dns": {
+    "servers": [
+      {
+        "tag": "cloudflare",
+        "type": "https",
+        "server": "1.1.1.1"
+      }
+    ]
+  },
+  "inbounds": [
+    {
+      "type": "shadowsocks",
+      "tag": "shadowsocks-in-chacha20",
+      "listen": "::",
+      "listen_port": $SS_CHACHA20_PORT,
+      "method": "chacha20-ietf-poly1305",
+      "password": "$SS_CHACHA20_PASSWORD"
+    },
+    {
+      "type": "shadowsocks",
+      "tag": "shadowsocks-in-aes-gcm",
+      "listen": "::",
+      "listen_port": $SS_AESGCM_PORT,
+      "method": "2022-blake3-aes-128-gcm",
+      "password": "$SS_AESGCM_PASSWORD"
+    },
+    {
+      "type": "vmess",
+      "tag": "vmess-in",
+      "listen": "::",
+      "listen_port": $VMESS_PORT,
+      "users": [
+        {
+          "uuid": "$VMESS_UUID",
+          "alterId": 0
+        }
+      ],
+      "tls": {
+        "enabled": true,
+        "certificate_path": "$VMESS_CERT",
+        "key_path": "$VMESS_KEY"
+      },
+      "transport": {
+        "type": "ws",
+        "path": "$VMESS_WSPATH"
+      }
+    },
+    {
+      "type": "trojan",
+      "tag": "trojan-in",
+      "listen": "::",
+      "listen_port": $TROJAN_PORT,
+      "users": [
+        {
+          "name": "$TROJAN_NAME",
+          "password": "$TROJAN_PASSWORD"
+        }
+      ],
+      "tls": {
+        "enabled": true,
+        "certificate_path": "$TROJAN_CERT",
+        "key_path": "$TROJAN_KEY"
+      }
+    },
+    {
+      "type": "naive",
+      "tag": "naive-in",
+      "listen": "::",
+      "listen_port": $NAIVE_PORT,
+      "users": [
+        {
+          "username": "$NAIVE_USER",
+          "password": "$NAIVE_PASSWORD"
+        }
+      ],
+      "tls": {
+        "enabled": true,
+        "certificate_path": "$NAIVE_CERT",
+        "key_path": "$NAIVE_KEY"
+      }
+    },
+    {
+      "type": "shadowtls",
+      "tag": "shadowtls-in",
+      "listen": "::",
+      "listen_port": $SHADOWTLS_PORT,
+      "version": 2,
+      "password": "$SHADOWTLS_PASSWORD",
+      "handshake": {
+        "server": "$SHADOWTLS_SERVER",
+        "server_port": $SHADOWTLS_SERVER_PORT
+      },
+      "detour": "shadowsocks-in-chacha20"
+    },
+    {
+      "type": "tuic",
+      "tag": "tuic-in",
+      "listen": "::",
+      "listen_port": $TUIC_PORT,
+      "users": [
+        {
+          "uuid": "$TUIC_UUID",
+          "password": "$TUIC_PASSWORD"
+        }
+      ],
+      "congestion_control": "bbr",
+      "tls": {
+        "enabled": true,
+        "certificate_path": "$TUIC_CERT",
+        "key_path": "$TUIC_KEY"
+      }
+    },
+    {
+      "type": "hysteria2",
+      "tag": "hysteria2-in",
+      "listen": "::",
+      "listen_port": $HYSTERIA2_PORT,
+      "users": [
+        {
+          "password": "$HYSTERIA2_PASSWORD"
+        }
+      ],
+      "tls": {
+        "enabled": true,
+        "certificate_path": "$HYSTERIA2_CERT",
+        "key_path": "$HYSTERIA2_KEY"
+      },
+      "up_mbps": $HYSTERIA2_UP_MBPS,
+      "down_mbps": $HYSTERIA2_DOWN_MBPS
+    },
+    {
+      "type": "anytls",
+      "tag": "anytls-in",
+      "listen": "::",
+      "listen_port": $ANYTLS_PORT,
+      "tls": {
+        "enabled": true,
+        "certificate_path": "$ANYTLS_CERT",
+        "key_path": "$ANYTLS_KEY"
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "direct",
+      "tag": "direct"
+    },
+    {
+      "type": "block",
+      "tag": "block"
+    }
+  ],
+  "route": {
+    "rules": [
+      {
+        "protocol": "dns",
+        "outbound": "cloudflare"
+      },
+      {
+        "network": "tcp,udp",
+        "outbound": "direct"
+      }
+    ],
+    "final": "direct"
+  }
+}

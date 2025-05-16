@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  subscription:
+    build:
+      context: ./subscription
+      dockerfile: Dockerfile
+    container_name: singbox-subscription
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./.env:/app/.env:ro
+      - ./cert:/etc/sing-box/tls:ro
+    depends_on:
+      - sing-box
+  sing-box:
+    image: ghcr.io/sagernet/sing-box:latest-beta
+    container_name: sing-box-server
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./config/config.json:/etc/sing-box/config.json:ro
+      - ./cert:/etc/sing-box/tls:ro
+      - ./logs/sing-box.log:/var/log/sing-box/sing-box.log
+    cap_add:
+      - NET_ADMIN
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    command: -D /var/lib/sing-box -C /etc/sing-box/ run
