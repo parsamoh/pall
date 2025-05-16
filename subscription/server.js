@@ -30,7 +30,9 @@ const {
   HYSTERIA2_PASSWORD,
   HYSTERIA2_UP_MBPS,
   HYSTERIA2_DOWN_MBPS,
-  ANYTLS_PORT, // Note: Anytls isn't a standard subscription link type
+  ANYTLS_PORT,
+  ANYTLS_NAME,
+  ANYTLS_PASSWORD,
 } = process.env;
 
 // Helper to maybe push a link string
@@ -116,7 +118,14 @@ function makeSubscriptionLinks() {
     return `hysteria2://${HYSTERIA2_PASSWORD}@${SERVER_NAME}:${HYSTERIA2_PORT}?${params}#${encodeURIComponent("hysteria2")}`;
   });
 
-  // Note: ShadowTLS and Anytls are not standard subscription link types
+
+  pushIf(links, ANYTLS_PORT && ANYTLS_NAME && SERVER_NAME, () => {
+    const params = new URLSearchParams({
+    }).toString();
+    return `hysteria2://${ANYTLS_NAME}@${SERVER_NAME}:${ANYTLS_PORT}?${params}#${encodeURIComponent("anytls")}`;
+  });
+
+  // Note: ShadowTLS are not standard subscription link types
   // and are typically configured as transport layers within a client,
   // rather than as top-level subscription links. They are excluded here.
 

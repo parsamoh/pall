@@ -140,6 +140,12 @@
       "tag": "anytls-in",
       "listen": "::",
       "listen_port": $ANYTLS_PORT,
+      "users": [
+        {
+          "name": "$ANYTLS_NAME",
+          "password": "$ANYTLS_PASSWORD"
+        }
+      ],
       "tls": {
         "enabled": true,
         "certificate_path": "$ANYTLS_CERT",
