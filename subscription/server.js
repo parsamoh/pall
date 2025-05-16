@@ -122,7 +122,7 @@ function makeSubscriptionLinks() {
   pushIf(links, ANYTLS_PORT && ANYTLS_NAME && SERVER_NAME, () => {
     const params = new URLSearchParams({
     }).toString();
-    return `hysteria2://${ANYTLS_NAME}@${SERVER_NAME}:${ANYTLS_PORT}?${params}#${encodeURIComponent("anytls")}`;
+    return `anytls://${ANYTLS_NAME}@${SERVER_NAME}:${ANYTLS_PORT}?${params}#${encodeURIComponent("anytls")}`;
   });
 
   // Note: ShadowTLS are not standard subscription link types
