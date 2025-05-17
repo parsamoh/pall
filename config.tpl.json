@@ -122,6 +122,10 @@
       "tag": "hysteria2-in",
       "listen": "::",
       "listen_port": $HYSTERIA2_PORT,
+      "obfs": {
+        "type": "salamander",
+        "password": "$HYSTERIA2_OBFS"
+      },
       "users": [
         {
           "password": "$HYSTERIA2_PASSWORD"

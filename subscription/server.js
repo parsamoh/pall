@@ -28,6 +28,7 @@ const {
   TUIC_CONGESTION,
   HYSTERIA2_PORT,
   HYSTERIA2_PASSWORD,
+  HYSTERIA2_OBFS,
   HYSTERIA2_UP_MBPS,
   HYSTERIA2_DOWN_MBPS,
   ANYTLS_PORT,
@@ -110,8 +111,8 @@ function makeSubscriptionLinks() {
   // Hysteria2
   pushIf(links, HYSTERIA2_PORT && HYSTERIA2_PASSWORD && SERVER_NAME, () => {
     const params = new URLSearchParams({
-      sni: SERVER_NAME
-      // Add other Hysteria2 params if needed, e.g., obfs=none
+      sni: SERVER_NAME,
+      "obfs-password": HYSTERIA2_OBFS
     }).toString();
     return `hysteria2://${HYSTERIA2_PASSWORD}@${SERVER_IP}:${HYSTERIA2_PORT}?${params}#${encodeURIComponent("hysteria2")}`;
   });
