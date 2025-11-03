@@ -49,7 +49,7 @@ services:
     restart: unless-stopped
     network_mode: host
     volumes:
-      - ./snell.conf:/etc/snell/config.conf:ro
+      - ./snell.conf:/etc/snell/snell-server.conf:ro
     logging:
       driver: "json-file"
       options:
