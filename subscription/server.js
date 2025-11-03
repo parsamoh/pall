@@ -1,6 +1,7 @@
 // server.js
 const express = require("express");
 require("dotenv").config();
+const yaml = require("js-yaml");
 
 const {
   SERVER_NAME,
@@ -202,6 +203,147 @@ app.get("/subscribe", (_req, res) => {
   // Optional: Add a header for the client to recognize the subscription name
   // res.setHeader("Subscription-Userinfo", "upload=0; download=0; total=107374182400; expire=253402300799"); // Example usage info if you implement tracking
   res.send(base64Subscription);
+});
+
+// Build Clash/Mihomo YAML config
+function makeClashConfig() {
+  const proxies = [];
+
+  if (SS_CHACHA20_PORT && SS_CHACHA20_PASSWORD && SERVER_IP) {
+    proxies.push({
+      name: "ss-chacha20-ietf-poly1305",
+      type: "ss",
+      server: SERVER_IP,
+      port: Number(SS_CHACHA20_PORT),
+      cipher: "chacha20-ietf-poly1305",
+      password: SS_CHACHA20_PASSWORD,
+      udp: true
+    });
+  }
+
+  if (SS_AESGCM_PORT && SS_AESGCM_PASSWORD && SERVER_IP) {
+    proxies.push({
+      name: "ss-2022-blake3-aes-128-gcm",
+      type: "ss",
+      server: SERVER_IP,
+      port: Number(SS_AESGCM_PORT),
+      cipher: "2022-blake3-aes-128-gcm",
+      password: SS_AESGCM_PASSWORD,
+      udp: true
+    });
+  }
+
+  if (VMESS_PORT && VMESS_UUID && VMESS_WSPATH && SERVER_NAME) {
+    proxies.push({
+      name: "vmess-ws",
+      type: "vmess",
+      server: SERVER_NAME,
+      port: Number(VMESS_PORT),
+      uuid: VMESS_UUID,
+      alterId: 0,
+      cipher: "auto",
+      tls: true,
+      network: "ws",
+      "ws-opts": {
+        path: VMESS_WSPATH,
+        headers: { Host: SERVER_NAME }
+      }
+    });
+  }
+
+  if (TROJAN_PORT && TROJAN_PASSWORD && SERVER_NAME) {
+    proxies.push({
+      name: "trojan",
+      type: "trojan",
+      server: SERVER_NAME,
+      port: Number(TROJAN_PORT),
+      password: TROJAN_PASSWORD,
+      sni: SERVER_NAME,
+      udp: true
+    });
+  }
+
+  if (NAIVE_PORT && NAIVE_USER && NAIVE_PASSWORD && SERVER_NAME) {
+    proxies.push({
+      name: "naive",
+      type: "naive",
+      server: SERVER_NAME,
+      port: Number(NAIVE_PORT),
+      username: NAIVE_USER,
+      password: NAIVE_PASSWORD,
+      tls: true,
+      sni: SERVER_NAME
+    });
+  }
+
+  if (TUIC_PORT && TUIC_UUID && TUIC_PASSWORD && SERVER_IP) {
+    proxies.push({
+      name: "tuic",
+      type: "tuic",
+      server: SERVER_IP,
+      port: Number(TUIC_PORT),
+      uuid: TUIC_UUID,
+      password: TUIC_PASSWORD,
+      sni: SERVER_NAME,
+      congestion_control: TUIC_CONGESTION || "bbr",
+      alpn: ["h3"],
+      udp: true
+    });
+  }
+
+  if (HYSTERIA2_PORT && HYSTERIA2_PASSWORD && SERVER_IP) {
+    const hysteria = {
+      name: "hysteria2",
+      type: "hysteria2",
+      server: SERVER_IP,
+      port: Number(HYSTERIA2_PORT),
+      password: HYSTERIA2_PASSWORD,
+      sni: SERVER_NAME
+    };
+    if (HYSTERIA2_OBFS) {
+      hysteria.obfs = {
+        type: "salamander",
+        password: HYSTERIA2_OBFS
+      };
+    }
+    proxies.push(hysteria);
+  }
+
+  if (SNELL_PORT && SNELL_PSK && SERVER_NAME) {
+    const snell = {
+      name: "snell",
+      type: "snell",
+      server: SERVER_NAME,
+      port: Number(SNELL_PORT),
+      psk: SNELL_PSK,
+      version: 3
+    };
+    if (SNELL_OBFS) {
+      snell["obfs-opts"] = { mode: SNELL_OBFS };
+      if (SNELL_OBFS_HOST) snell["obfs-opts"].host = SNELL_OBFS_HOST;
+    }
+    proxies.push(snell);
+  }
+
+  const proxyNames = proxies.map(p => p.name);
+  const config = {
+    proxies,
+    "proxy-groups": [
+      {
+        name: "Auto",
+        type: "select",
+        proxies: proxyNames
+      }
+    ]
+  };
+  return config;
+}
+
+app.get("/clash", (_req, res) => {
+  const config = makeClashConfig();
+  const body = yaml.dump(config, { noRefs: true });
+  res.setHeader("Content-Type", "text/yaml; charset=utf-8");
+  res.send(body);
 });
 
 app.listen(8080, () => {
