@@ -13,6 +13,15 @@ done
 read -rp "Enter SERVER_NAME (domain): " SERVER_NAME
 read -rp "Enter SERVER_IP: " SERVER_IP
 
+# NetBird (optional)
+read -rp "Enter NB_SETUP_KEY (optional, press Enter to skip): " NB_SETUP_KEY || true
+read -rp "Enter NB_MGMT_URL [https://api.netbird.io]: " NB_MGMT_URL || true
+NB_MGMT_URL=${NB_MGMT_URL:-https://api.netbird.io}
+read -rp "Enter NB_SIGNAL_URL [https://signal.netbird.io]: " NB_SIGNAL_URL || true
+NB_SIGNAL_URL=${NB_SIGNAL_URL:-https://signal.netbird.io}
+read -rp "Enter NB_LOG_LEVEL [info]: " NB_LOG_LEVEL || true
+NB_LOG_LEVEL=${NB_LOG_LEVEL:-info}
+
 CERT_DIR=/etc/sing-box/tls
 DOMAINS="$SERVER_NAME"
 
@@ -53,6 +62,18 @@ HYSTERIA2_DOWN_MBPS=100
 ANYTLS_PORT=45000
 ANYTLS_NAME=anytls_user
 ANYTLS_PASSWORD=$(openssl rand -hex 16)
+
+# Subscription auth token
+SUBSCRIPTION_TOKEN=$(openssl rand -hex 24)
+
+# Snell v3
+SNELL_PORT=13254
+SNELL_PSK=$(openssl rand -hex 16)
+SNELL_OBFS=tls
+SNELL_OBFS_HOST=www.bing.com
+SNELL_IPV6=false
+SNELL_TFO=true
+SNELL_REUSE_PORT=true
 
 # Write to .env file
 ENV_FILE=".env"
@@ -124,6 +145,24 @@ ANYTLS_NAME=$ANYTLS_NAME
 ANYTLS_PASSWORD=$ANYTLS_PASSWORD
 ANYTLS_CERT="\${CERT_DIR}/fullchain.pem"
 ANYTLS_KEY="\${CERT_DIR}/privkey.pem"
+
+# NetBird
+NB_SETUP_KEY=$NB_SETUP_KEY
+NB_MGMT_URL=$NB_MGMT_URL
+NB_SIGNAL_URL=$NB_SIGNAL_URL
+NB_LOG_LEVEL=$NB_LOG_LEVEL
+
+# Snell v3
+SNELL_PORT=$SNELL_PORT
+SNELL_PSK=$SNELL_PSK
+SNELL_OBFS=$SNELL_OBFS
+SNELL_OBFS_HOST=$SNELL_OBFS_HOST
+SNELL_IPV6=$SNELL_IPV6
+SNELL_TFO=$SNELL_TFO
+SNELL_REUSE_PORT=$SNELL_REUSE_PORT
+
+# Subscription auth token
+SUBSCRIPTION_TOKEN=$SUBSCRIPTION_TOKEN
 EOF
 
 echo "Generated $ENV_FILE successfully."

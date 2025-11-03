@@ -26,3 +26,17 @@ fi
 # generate
 envsubst <"${TPL_FILE}" >"${OUT_FILE}"
 echo "✅  Generated ${OUT_FILE}"
+
+# also generate Snell v3 config from .env
+SNELL_CONF_FILE="${SCRIPT_DIR}/snell.conf"
+cat >"${SNELL_CONF_FILE}" <<EOF
+[snell-server]
+listen = 0.0.0.0:${SNELL_PORT}
+psk = ${SNELL_PSK}
+obfs = ${SNELL_OBFS}
+obfs-host = ${SNELL_OBFS_HOST}
+ipv6 = ${SNELL_IPV6}
+tfo = ${SNELL_TFO}
+reuse-port = ${SNELL_REUSE_PORT}
+EOF
+echo "✅  Generated ${SNELL_CONF_FILE}"

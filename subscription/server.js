@@ -33,6 +33,13 @@ const {
   HYSTERIA2_DOWN_MBPS,
   ANYTLS_PORT,
   ANYTLS_PASSWORD,
+  // Snell v3
+  SNELL_PORT,
+  SNELL_PSK,
+  SNELL_OBFS,
+  SNELL_OBFS_HOST,
+  // Subscription auth
+  SUBSCRIPTION_TOKEN,
 } = process.env;
 
 // Helper to maybe push a link string
@@ -117,6 +124,19 @@ function makeSubscriptionLinks() {
     return `hysteria2://${HYSTERIA2_PASSWORD}@${SERVER_IP}:${HYSTERIA2_PORT}?${params}#${encodeURIComponent("hysteria2")}`;
   });
 
+  // Snell v3 (informal URL scheme used by several clients)
+  pushIf(
+    links,
+    SNELL_PORT && SNELL_PSK && SERVER_NAME,
+    () => {
+      const params = new URLSearchParams();
+      if (SNELL_OBFS) params.set("obfs", SNELL_OBFS);
+      if (SNELL_OBFS_HOST) params.set("obfs-host", SNELL_OBFS_HOST);
+      params.set("version", "3");
+      return `snell://${encodeURIComponent(SNELL_PSK)}@${SERVER_NAME}:${SNELL_PORT}?${params.toString()}#${encodeURIComponent("snell")}`;
+    }
+  );
+
 
   pushIf(links, ANYTLS_PORT && ANYTLS_PASSWORD && SERVER_NAME, () => {
     const params = new URLSearchParams({
@@ -135,9 +155,28 @@ function makeSubscriptionLinks() {
 
 const app = express();
 
+// Simple auth: accept token from query "token" or Authorization: Bearer <token>
+function validateToken(req) {
+  const q = req.query.token;
+  const h = req.headers["authorization"] || "";
+  const bearer = h.toString().startsWith("Bearer ") ? h.toString().slice(7) : "";
+  return SUBSCRIPTION_TOKEN && (q === SUBSCRIPTION_TOKEN || bearer === SUBSCRIPTION_TOKEN);
+}
+
+app.use((req, res, next) => {
+  if (req.path === "/" || req.path === "/healthz") return next();
+  if (!validateToken(req)) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
+  next();
+});
+
 // Serve a simple HTML page pointing users at the subscription URL
 app.get("/", (_req, res) => {
-  const subUrl = `https://${SERVER_NAME}/subscribe`;
+  const subUrl = `https://${SERVER_NAME}/subscribe?token=${encodeURIComponent(
+    SUBSCRIPTION_TOKEN || ""
+  )}`;
   res.send(`
     <html>
       <head><title>Sing-box Subscription</title></head>
@@ -167,6 +206,7 @@ app.get("/subscribe", (_req, res) => {
 
 app.listen(8080, () => {
   console.log("✅ HTTPS server running on port 443");
-  console.log(`Subscription URL: https://${SERVER_NAME}/subscribe`);
+  const tokenHint = SUBSCRIPTION_TOKEN ? `?token=${SUBSCRIPTION_TOKEN}` : "";
+  console.log(`Subscription URL: https://${SERVER_NAME}/subscribe${tokenHint}`);
 });
 
