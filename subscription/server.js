@@ -287,7 +287,6 @@ function makeClashConfig() {
       password: HYSTERIA2_PASSWORD,
       sni: SERVER_NAME,
       "skip-cert-verify": false,
-      fingerprint: "chrome",
       alpn: ["h3"]
     };
     if (typeof HYSTERIA2_UP_MBPS !== "undefined" && HYSTERIA2_UP_MBPS) {
