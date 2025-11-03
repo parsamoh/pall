@@ -41,12 +41,8 @@ services:
       - "/dev/net/tun:/dev/net/tun"
     volumes:
       - ./netbird:/etc/netbird
-      - ./.env:/app/.env:ro
-    environment:
-      - NB_SETUP_KEY=${NB_SETUP_KEY}
-      - NB_MGMT_URL=${NB_MGMT_URL}
-      - NB_SIGNAL_URL=${NB_SIGNAL_URL}
-      - NB_LOG_LEVEL=${NB_LOG_LEVEL:-info}
+    env_file:
+      - ./.env
   snell:
     image: funnyzak/snell-server:v3.0.1
     container_name: snell-server
