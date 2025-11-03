@@ -34,9 +34,5 @@ cat >"${SNELL_CONF_FILE}" <<EOF
 listen = 0.0.0.0:${SNELL_PORT}
 psk = ${SNELL_PSK}
 obfs = ${SNELL_OBFS}
-obfs-host = ${SNELL_OBFS_HOST}
-ipv6 = ${SNELL_IPV6}
-tfo = ${SNELL_TFO}
-reuse-port = ${SNELL_REUSE_PORT}
 EOF
 echo "✅  Generated ${SNELL_CONF_FILE}"
