@@ -263,19 +263,6 @@ function makeClashConfig() {
     });
   }
 
-  if (NAIVE_PORT && NAIVE_USER && NAIVE_PASSWORD && SERVER_NAME) {
-    proxies.push({
-      name: "naive",
-      type: "naive",
-      server: SERVER_NAME,
-      port: Number(NAIVE_PORT),
-      username: NAIVE_USER,
-      password: NAIVE_PASSWORD,
-      tls: true,
-      sni: SERVER_NAME
-    });
-  }
-
   if (TUIC_PORT && TUIC_UUID && TUIC_PASSWORD && SERVER_IP) {
     proxies.push({
       name: "tuic",
