@@ -285,14 +285,24 @@ function makeClashConfig() {
       server: SERVER_IP,
       port: Number(HYSTERIA2_PORT),
       password: HYSTERIA2_PASSWORD,
-      sni: SERVER_NAME
+      sni: SERVER_NAME,
+      "skip-cert-verify": false,
+      fingerprint: "chrome",
+      alpn: ["h3"]
     };
-    if (HYSTERIA2_OBFS) {
-      hysteria.obfs = {
-        type: "salamander",
-        password: HYSTERIA2_OBFS
-      };
+    if (typeof HYSTERIA2_UP_MBPS !== "undefined" && HYSTERIA2_UP_MBPS) {
+      hysteria.up = `${HYSTERIA2_UP_MBPS} Mbps`;
     }
+    if (typeof HYSTERIA2_DOWN_MBPS !== "undefined" && HYSTERIA2_DOWN_MBPS) {
+      hysteria.down = `${HYSTERIA2_DOWN_MBPS} Mbps`;
+    }
+    if (HYSTERIA2_OBFS) {
+      hysteria.obfs = "salamander";
+      hysteria["obfs-password"] = HYSTERIA2_OBFS;
+    }
+    // Optional range if provided via env (e.g., "443-8443")
+    const { HYSTERIA2_PORTS } = process.env;
+    if (HYSTERIA2_PORTS) hysteria.ports = HYSTERIA2_PORTS;
     proxies.push(hysteria);
   }
 
