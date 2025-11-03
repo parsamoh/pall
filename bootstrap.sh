@@ -89,6 +89,18 @@ install_runtime() {
     mknod /dev/net/tun c 10 200 || true
     chmod 0666 /dev/net/tun || true
   fi
+
+  # Enable IP forwarding on host (required for VPN routing)
+  echo "Enabling IP forwarding on host..."
+  sysctl -w net.ipv4.ip_forward=1 || true
+  sysctl -w net.ipv6.conf.all.forwarding=1 || true
+  # persist
+  mkdir -p /etc/sysctl.d
+  cat >/etc/sysctl.d/99-pall.conf <<EOF
+net.ipv4.ip_forward=1
+net.ipv6.conf.all.forwarding=1
+EOF
+  sysctl --system >/dev/null 2>&1 || true
 }
 
 prepare_dirs() {
