@@ -52,7 +52,7 @@ services:
       - NB_SIGNAL_URL=${NB_SIGNAL_URL}
       - NB_LOG_LEVEL=${NB_LOG_LEVEL:-info}
   snell:
-    image: ihciah/snell-server:latest
+    image: funnyzak/snell-server:v3.0.1
     container_name: snell-server
     restart: unless-stopped
     network_mode: host
