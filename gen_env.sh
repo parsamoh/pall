@@ -15,8 +15,8 @@ read -rp "Enter SERVER_IP: " SERVER_IP
 
 # NetBird (optional)
 read -rp "Enter NB_SETUP_KEY (optional, press Enter to skip): " NB_SETUP_KEY || true
-read -rp "Enter NB_MGMT_URL [https://api.netbird.io]: " NB_MGMT_URL || true
-NB_MGMT_URL=${NB_MGMT_URL:-https://api.netbird.io}
+read -rp "Enter NB_MANAGEMENT_URL [https://api.netbird.io]: " NB_MANAGEMENT_URL || true
+NB_MANAGEMENT_URL=${NB_MANAGEMENT_URL:-https://api.netbird.io}
 read -rp "Enter NB_SIGNAL_URL [https://signal.netbird.io]: " NB_SIGNAL_URL || true
 NB_SIGNAL_URL=${NB_SIGNAL_URL:-https://signal.netbird.io}
 read -rp "Enter NB_LOG_LEVEL [info]: " NB_LOG_LEVEL || true
@@ -148,7 +148,7 @@ ANYTLS_KEY="\${CERT_DIR}/privkey.pem"
 
 # NetBird
 NB_SETUP_KEY=$NB_SETUP_KEY
-NB_MGMT_URL=$NB_MGMT_URL
+NB_MANAGEMENT_URL=$NB_MANAGEMENT_URL
 NB_SIGNAL_URL=$NB_SIGNAL_URL
 NB_LOG_LEVEL=$NB_LOG_LEVEL
 
